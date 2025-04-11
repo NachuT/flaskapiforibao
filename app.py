@@ -4,22 +4,19 @@ import os
 from dotenv import load_dotenv
 import requests
 
-# Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app)  
 
-# Load configuration from .env file
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 PROJECT_ID = os.getenv('PROJECT_ID')
-LOCATION = os.getenv('LOCATION', 'global')  # Default to global if not set
+LOCATION = os.getenv('LOCATION', 'global')  
 
-# Gemini API configuration
+#
 MODEL_PATH = "gemini-2.0-flash:generateContent"
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL_PATH}?key={GEMINI_API_KEY}"
 
-# Astronomy keywords for filtering
 ASTRONOMY_KEYWORDS = [
     "planet", "star", "galaxy", "black hole", "nebula", "cosmology",
     "telescope", "universe", "astronomy", "orbit", "exoplanet", "big bang"
@@ -33,14 +30,12 @@ def ask_question():
     data = request.get_json()
     question = data.get('question', '')
 
-    # Ensure the question is astronomy-related
     if not is_astronomy_question(question):
         return jsonify({
             'error': 'Please ask an astronomy-related question.'
         }), 400
 
     try:
-        # Prepare the payload for Gemini API
         payload = {
             'contents': [
                 {
@@ -52,12 +47,12 @@ def ask_question():
             ]
         }
 
-        # Make request to Gemini API
+    
         response = requests.post(GEMINI_URL, json=payload)
         response.raise_for_status()
         response_data = response.json()
 
-        # Extract the answer from the response
+        
         if (response_data and 
             response_data.get('candidates') and 
             response_data['candidates'][0].get('content') and 
